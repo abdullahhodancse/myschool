@@ -1,9 +1,34 @@
 from django.utils.deprecation import MiddlewareMixin
+from django.shortcuts import redirect
+from django.utils import timezone
+from .models import Subscription
 
-class SimpleMiddleware(MiddlewareMixin):
+
+    
+
+
+
+
+
+class SubscriptionMiddleware(MiddlewareMixin):
     def process_request(self, request):
-        print("Before View")
+        try:
+            
+            subscription = Subscription.objects.filter(
+                user=request.user, is_active=True
+            ).latest('end_date')
 
-    def process_response(self, request, response):
-        print("After View")
-        return response
+            
+            if subscription.type == 'free':
+                if subscription.end_date < timezone.now():
+                    return redirect('/no-subscription/')  
+
+            
+            if  subscription.end_date < timezone.now():
+                return redirect('/no-subscription/')
+
+        except Subscription.DoesNotExist:
+            
+            return redirect('/no-subscription/')
+
+        return None
