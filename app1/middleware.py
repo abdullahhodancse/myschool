@@ -9,6 +9,10 @@ class SubscriptionMiddleware(MiddlewareMixin):
         
         if not request.user.is_authenticated:
             return None
+        
+        if request.path =='/app1/no/':
+            return None
+
 
         try:
            
@@ -19,14 +23,12 @@ class SubscriptionMiddleware(MiddlewareMixin):
             
             if subscription.type == 'free':
                 if subscription.end_date and subscription.end_date < timezone.now():
-                    return redirect('/sub.html/')
+                    return redirect('/app1/no/')
 
             
-            if subscription.end_date and subscription.end_date < timezone.now():
-                return redirect('/sub.html/')
-
+            
         except Subscription.DoesNotExist:
             
-            return redirect('/no-subscription/')
+            return redirect('/no_subs/')
 
         return None
